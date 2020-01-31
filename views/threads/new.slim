@@ -1,0 +1,9 @@
+form action='/threads/new' method='post'
+    label for="title" Title
+    input type='text' id='title' name='title'
+    label for="text" Text
+    input type='text' id='text' name='text'
+    -for tag in @tags
+        label for="tag_#{tag[:id]}" #{tag[:name]} 
+        input id="tag_#{tag[:id]}" type="checkbox" value="#{tag[:id]}" name="tag_ids[]"
+    button type='submit' Create new thread

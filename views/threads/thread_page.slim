@@ -1,0 +1,9 @@
+.thread
+    h2 = "#{thread[:title]}"
+    p = "#{thread[:text]}"
+    small = "Posted by #{thread[:user]}"
+    h3 = "comments"
+form actions='/threads/:id' method='post'
+    label for="text" Text
+    input type='text' id='text' name='text'
+    button type='submit' submit comment

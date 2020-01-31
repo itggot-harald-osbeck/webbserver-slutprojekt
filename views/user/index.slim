@@ -1,0 +1,7 @@
+h1 welcome to your profile #{@username}
+h3 your threads buuuh
+-if @user_threads[0][:title]
+    -for thread in @user_threads
+        == slim :'threads/partials/thread_card', locals: {thread: thread}
+h3 your comments buuuh
+== slim :'threads/partials/comments_card', locals: {comments: @user_comments}

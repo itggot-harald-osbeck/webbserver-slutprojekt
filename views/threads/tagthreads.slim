@@ -1,0 +1,8 @@
+-if @threads[0]
+    h1 You are viewing #{@threads[0][:tag_name]}
+-else
+    h1 There are no posts here
+    
+/h1 You are viewing #{@threads[0][:tag_name]}
+-for thread in @threads
+    == slim :'threads/partials/thread_card', locals: {thread: thread}

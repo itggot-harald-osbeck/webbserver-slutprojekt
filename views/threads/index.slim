@@ -1,0 +1,8 @@
+p you are logged in as 
+a href="user/#{@userid}" #{@username}
+h1 Hi and welcome to tillbakablick
+a href="/threads/tag/1" class="tag_link" Gaming
+a href="/threads/tag/2" class="tag_link" General
+a href="/threads/tag/3" class="tag_link" Funny
+-for thread in @threads
+    == slim :'threads/partials/thread_card', locals: {thread: thread}

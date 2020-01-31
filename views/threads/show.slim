@@ -1,0 +1,3 @@
+    span= @thread
+    == slim :'threads/thread_page', locals: {thread: @thread}
+    == slim :'threads/partials/comments_card', locals: {comments: @comments}
