@@ -1,7 +1,7 @@
 .thread
-    h2 = "#{thread[:title]}"
-    p = "#{thread[:text]}"
-    small = "Posted by #{thread[:user]}"
+    h2 = "#{thread.title}"
+    p = "#{thread.text}"
+    small = "Posted by #{thread.user_id}"
     h3 = "comments"
 form actions='/threads/:id' method='post'
     label for="text" Text

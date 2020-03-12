@@ -1,3 +1,5 @@
+require_relative "models/handler.rb"
+
 class App < Sinatra::Base
 
     enable :sessions
@@ -13,11 +15,10 @@ class App < Sinatra::Base
     end
     
     get '/' do
-        redirect "/threads/"
-        
+        redirect "/login/"
     end
     
-    get '/login' do
+    get '/login/?' do
         slim :'user/login'
     end
 
@@ -26,19 +27,21 @@ class App < Sinatra::Base
     end
 
     get '/threads/?' do
-        #@threads = Thread.all
-        threads = @db.execute('SELECT threads.*, users.name as user
-            FROM threads
-            JOIN users
-            ON threads.user_id = users.id')
-        @threads = []
-        threads.each do |thread|
-            new_thread = {}
-            thread.each do |key, value|
-                new_thread[key.to_sym] = value
-            end
-            @threads << new_thread
-        end
+        #@threads = Thread.get
+        # threads = @db.execute('SELECT threads.*, users.name as user
+        #     FROM threads
+        #     JOIN users
+        #     ON threads.user_id = users.id')
+        # @threads = []
+        # threads.each do |thread|
+        #     new_thread = {}
+        #     thread.each do |key, value|
+        #         new_thread[key.to_sym] = value
+        #     end
+        #     @threads << new_thread
+        # end
+        @threads = Bthread.get_all()
+
         slim :'threads/index'
     end
     
@@ -57,27 +60,35 @@ class App < Sinatra::Base
         slim :'threads/new'
     end
     
-        
     get '/threads/:id/?' do
 
-        @thread_data = @db.execute('SELECT threads.*, users.name, commenters.name as commenter_name, comments.text as comment_text, comments.id as comment_id
-        FROM threads
-        LEFT JOIN users
-        ON threads.user_id = users.id
-        JOIN users as commenters
-        LEFT JOIN comments 
-        ON comments.thread_id = threads.id AND comments.user_id = commenters.id
-        WHERE threads.id = ?', params['id'])
+        # @thread_data = @db.execute('SELECT threads.*, users.name, commenters.name as commenter_name, comments.text as comment_text, comments.id as comment_id
+        # FROM threads
+        # LEFT JOIN users
+        # ON threads.user_id = users.id
+        # JOIN users as commenters
+        # LEFT JOIN comments 
+        # ON comments.thread_id = threads.id AND comments.user_id = commenters.id
+        # WHERE threads.id = ?', params['id'])
     
-        @thread = {text: @thread_data[0]['text'], title: @thread_data[0]['title'], user: @thread_data[0]['name'] }
-    
-        @comments = []
+        # @thread = {text: @thread_data[0]['text'], title: @thread_data[0]['title'], user: @thread_data[0]['name'] }
         
-        @thread_data.each do |comment|
-            if comment['comment_text']
-                @comments << {user: comment['commenter_name'], text: comment['comment_text']}
-            end
-        end
+        # @comments = []
+        # @thread_data.each do |comment|
+        #     if comment['comment_text']
+        #         @comments << {user: comment['commenter_name'], text: comment['comment_text']}
+        #     end
+        # end
+    
+        threads = Bthread.get_all
+        @thread = threads.find { |t| t.thread_id == params['id'].to_i }
+        p threads
+        p "#############"
+        p @thread
+        p "#############"
+
+        allcomments = Comment.get_all
+        @comments = allcomments.find(params['id'])
 
         slim :'threads/show'
     end
@@ -172,30 +183,18 @@ class App < Sinatra::Base
     end
 
     post '/threads/new/?' do
-        #Thread.new
-        @db.execute('INSERT INTO threads(title, text, user_id)
-        VALUES (?,?,?)', params['title'], params['text'], session[:user_id])
+        # thread_id = Bthread.new(params['title'], params['text'], session[:user_id], params['tag_ids'])
+        thread = Bthread.new(params['title'], null, params['text'], session[:user_id], params['tag_ids'])
+        thread_id = thread.insert(params['title'], params['text'], session[:user_id], params['tag_ids'])
         
-        @db.transaction()
-        @thread_id = @db.execute('SELECT threads.id
-        FROM threads
-        ORDER BY id DESC
-        LIMIT 1').first['id']
-        @db.commit()
-
-        tags = params['tag_ids']
-        tags.each do |tag|
-            p tag
-            p @thread_id
-            @db.execute('INSERT INTO taggings(tag_id, thread_id)
-            VALUES (?,?)', tag, @thread_id)
-        end
-        redirect "/threads/#{@thread_id}"
+        redirect "/threads/#{thread_id}"
     end
 
     post '/threads/:id/?' do
-        @db.execute('INSERT INTO comments(thread_id, text, user_id)
-        VALUES (?,?,?)', params['id'], params['text'], session[:user_id])
+        if params['text'].length > 0
+            @db.execute('INSERT INTO comments(thread_id, text, user_id)
+            VALUES (?,?,?)', params['id'], params['text'], session[:user_id])
+        end
         redirect "threads/#{params['id']}"
     end
 

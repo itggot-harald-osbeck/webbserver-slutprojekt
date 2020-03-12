@@ -1,4 +1,4 @@
 .thread
-    a href="/threads/#{thread[:id]}" class="thread_link"
-        h2= "#{thread[:title]}"
-        span= "Posted by #{thread[:user]}"
+    a href="/threads/#{thread.thread_id}" class="thread_link"
+        h2= "#{thread.title}"
+        span= "Posted by #{thread.user_id}"
