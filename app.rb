@@ -96,24 +96,29 @@ class App < Sinatra::Base
 
     get '/threads/tag/:tagid/?' do
 
-        threads = @db.execute('SELECT threads.*, users.name as user, taggings.*, tags.name as tag_name
-        FROM threads
-        JOIN users
-        ON threads.user_id = users.id
-        JOIN taggings
-        ON threads.id = taggings.thread_id
-        JOIN tags
-        ON tags.id = taggings.tag_id
-        WHERE taggings.tag_id = ?', params['tagid'])
-        @threads = []
-        threads.each do |thread|
-            new_thread = {}
-            thread.each do |key, value|
-                new_thread[key.to_sym] = value
-            end
-            @threads << new_thread
-        end
+        # threads = @db.execute('SELECT threads.*, users.name as user, taggings.*, tags.name as tag_name
+        # FROM threads
+        # JOIN users
+        # ON threads.user_id = users.id
+        # JOIN taggings
+        # ON threads.id = taggings.thread_id
+        # JOIN tags
+        # ON tags.id = taggings.tag_id
+        # WHERE taggings.tag_id = ?', params['tagid'])
+        # @threads = []
+        # threads.each do |thread|
+        #     new_thread = {}
+        #     thread.each do |key, value|
+        #         new_thread[key.to_sym] = value
+        #     end
+        #     @threads << new_thread
+        # end
 
+        threads = Bthread.get_all
+        @threads = threads.find { |t| t.tags.include? '1' }
+
+        p threads
+        p @threads
         slim :'threads/tagthreads'
     end
 
